@@ -2,6 +2,7 @@
 
 ## Table of Contents
 - [IMPORTANT REMINDER BEFORE SENDING!](#important-reminder-before-sending)
+- [Ecast Generate JobId](#ecast-generate-jobid)
 - [Hi Plus notification](#hi-plus-notification)
 - [House & Bank Financing](#house--bank-financing)
 - [House Financing Renewal of Document](#house-financing-renewal-of-document)
@@ -29,6 +30,35 @@ Complete these steps before sending an ECast to buyers.
 2. Validate the data and ask the requester for approval.
 3. Send the message to the requester for proofreading.
 4. Check the message length with the [SMS Cost Tracker](https://www.smsgatewaycenter.com/sms-length-calculator/). Each SMS costs PHP 1.00. If the message is too long, ask the requester to shorten it.
+
+# Ecast Generate JobId
+Database Location `[Ecast]` 
+For creating a Job for sending via Email & SMS
+Review the script below 
+```
+DECLARE @TITLE			VARCHAR(200)	=  <INPUT TITLE> --sample  'PA KWENTONG BUHAY'
+DECLARE @DESCRIPTION	VARCHAR(200)	=  <INPUT DESCRIPTION> -- 'Kwentong Buhay, Kwentong Bahay Season 2'
+DECLARE @SUBJECT		VARCHAR(200)	= <INPUT SUBJECT> -- 'Kwentong Buhay, Kwentong Bahay Season 2'
+DECLARE @PROFILE		VARCHAR(200)	= <INPUT PROFILE> -- who is the sender 'P.A. Properties'
+DECLARE @MASK_NAME		VARCHAR(200)= <SENDER PROFILE FOR SMS> -- 'PA Properties'
+
+DECLARE @CREATED_BY		BIGINT			= 2151
+DECLARE @IS_ACTIVE		BIT				= 1
+
+INSERT INTO ECast.Jobs
+			(TITLE, DESCRIPTION, IS_ACTIVE, CREATED_BY)
+VALUES		(@SUBJECT, @DESCRIPTION, @IS_ACTIVE, @CREATED_BY)
+
+DECLARE @JOBS_ID BIGINT = SCOPE_IDENTITY()
+
+INSERT INTO [ECast].[Jobs_Email_Sending_Option]
+VALUES		(@JOBS_ID, @SUBJECT, @PROFILE)
+
+INSERT INTO [ECast].[Jobs_SMS_Sending_Option]
+VALUES		(@JOBS_ID, @MASK_NAME)
+
+
+```
 
 # Hi Plus notification
 Database location `ECast_Prod`
