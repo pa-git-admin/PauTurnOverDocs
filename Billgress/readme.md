@@ -143,7 +143,7 @@ Some user bypass Billgress to create PR & PO in **NOAH**
 #### Take note this is not advisable! 
 
 For PR & PO that is already created. **Run this script.**
- * [Manual PO Uploading V2](./sql/Manual_PO_Uploading_v2.sql)
+ * [Manual PO Uploading V2](./sql/Manual_PO_Uploading_V2.sql)
 
  Input all required variables 
  ```
