@@ -1,129 +1,129 @@
 # Common Issues
   ## Table of Contents
   - [Granting Access](#granting-access)
-  - [Billgress PR](#billgress-pr) 
-    - [Production month date not appearing](#production-month-date-not-appearaing)
+  - [Billgress PR](#billgress-pr)
+    - [Production month date not appearing](#production-month-date-not-appearing)
     - [BOM not appearing](#bom-not-appearing)
-    - [Unable Save PR Processing](#unable-save-pr-processing)
+    - [Unable to save PR processing](#unable-to-save-pr-processing)
   - [Billgress PO](#billgress-po)
     - [Materials not appearing](#materials-not-appearing)
     - [Failed PO saving](#failed-po-saving)
     - [Missing Item Code or Description](#missing-item-code-or-description)
   - [Debugging ASP runner](#debugging-asp-runner)
-  - [Billgress House Accomplishment](billgress-house-accomplishment)
+  - [Billgress House Accomplishment](#billgress-house-accomplishment)
     - [PO not appearing in the selection](#po-not-appearing-in-the-selection)
     - [Discrepancy in Billing](#discrepancy-in-billing)
   - [Billgress RFP](#billgress-rfp)
-    - [No RFPGEN is generated](#no-rfpgen-is-generated)
+    - [RFPGEN is missing](#rfpgen-is-missing)
   - [SQL Scripts](#sql-scripts)
-    - [Manual Migration of PR PO to Billgress](#manual-migration-of-pr-po-to-billgress)
-    - [PR & PO notification](#pr-&-po-notification)
-    - [Procurement Dashboard Scripts](#procurement-dashboard-scripts)
+    - [Manual migration of PRs and POs to Billgress](#manual-migration-of-prs-and-pos-to-billgress)
+    - [PR and PO notifications](#pr-and-po-notifications)
+    - [Procurement Dashboard](#procurement-dashboard)
     
   ---
   # Granting Access
-  Through the [LDAP](https://prod.paproperties.com.ph/ldap/) system click add new role look for the user. Select role as *User*.
+  In [LDAP](https://prod.paproperties.com.ph/ldap/), click **Add New Role**, find the user, and set the role to *User*.
   
-  [Billgress Outsystem version](https://prod.paproperties.com.ph/BillGressv2/) 
-  * Setup select the user and assign which module or system he/she needs.
+  [Billgress OutSystems version](https://prod.paproperties.com.ph/BillGressv2/)
+  * In Setup, select the user and assign the modules or systems they need.
   
   # Billgress PR
   
   ## Production month date not appearing
-  There are list of issues if the production month date is not appearing.
-  1. No Noah Cotime Created. 
-  2. No Cotime per sow
-  3. There's a **Restriction** in place if the Contract Type `Admin` requestor can only request only within a span of
-  **6 MONTHS**. Beyond the 6 months period. The requestor can't process the PR 
-  4. Noah Cotime and Cotime per SOW don't match on the duration of the date. if the user can't create a Cotime per SOW. 
-  * The requestors need to change the Construction date of the Noah Cotime
+  Check the following possible causes if the production month date is missing.
+  1. No Noah Cotime has been created.
+  2. There is no Cotime per SOW.
+  3. For the `Admin` contract type, the requester can process a PR only within
+  **six months**.
+  4. The date ranges for Noah Cotime and Cotime per SOW differ.
+  * If the requester can't create a Cotime per SOW, ask them to change the construction date in Noah Cotime.
   
   ## BOM not appearing
-    Take note most cases the requestor is not aware of the process.
-  Please check the store procedure `[WILP].[PR].[NSP_Bill_Of_Materials]` for BOM.
-  There are certain criterias to be meet in order for the BOM to load
-  1. The units need to have a Noah Cotime created & have a existing BatchNo. Look for the table `RE.[COTIMELIN]` to verify.
-  2. No setup by Cost Dept in **Noah Extension** system
-  3. For special scope of work
+    The requester may need help with the BOM setup.
+  Check the stored procedure `[WILP].[PR].[NSP_Bill_Of_Materials]` for the BOM.
+  Check the following conditions when the BOM fails to load.
+  1. The units need a Noah Cotime and an existing BatchNo. Verify both in `RE.[COTIMELIN]`.
+  2. Check whether the Cost Department has completed the setup in **Noah Extension**.
+  3. Check for a special scope of work.
   * Completion Works.
   * Glazing Works.
-  * Layout out finishing.
-    * Need an aditional setup. 
+  * Layout finishing.
+    * These scopes require additional setup.
     ![Scope of Work Assignment](./assets/ScopeOfWorkAssignment.png)
-  select any bom and assigned the special scope of works
-  4. the unit has an existing PR.
-  5. Old BOM setup. Request the cost dept to have it setup.
+  Select a BOM and assign the special scope of work.
+  4. Check whether the unit already has a PR.
+  5. If the BOM setup is outdated, ask the Cost Department to update it.
 
-  ## Unable Save PR Processing
-  Please check the store procedure `[WILP].[NSP_SavePurchaseRequest]` 
+  ## Unable to save PR processing
+  Check the stored procedure `[WILP].[NSP_SavePurchaseRequest]`
 
-    NOTE: For debugging purposes of PR saving. Run the project WarehouseInventoryLogisticPortal through your local.
-    Go to the file /Classes/PurchaseRequest/PurchaseRequest.cs  .
+    To debug PR saving, run the WarehouseInventoryLogisticPortal project locally.
+    Open /Classes/PurchaseRequest/PurchaseRequest.cs.
   ![PR Debugging](./assets/PRDebugging.png)
-  revert back if your debugging is done.
+  Revert your changes when you finish debugging.
   
   
-  1. If the error shows no sublocation. 
-  * The user has no existing setup associated to the **Project/Phase**
-  2. 0 Qty for the materials.
-  3. Validation for processing will fail due to 
-  * Has existing PR
-  * No Noah Cotime
-  * No Cotime per SOW.
+  1. If the error indicates a missing sublocation, check the user's setup.
+  * The user may lack a setup for the **Project/Phase**.
+  2. Check whether the material quantity is zero.
+  3. PR validation will fail for any of the following reasons.
+  * An existing PR
+  * A missing Noah Cotime
+  * A missing Cotime per SOW
 
   ---
   # Billgress PO
   
-  ## Materials not appearing 
-  If Current selected supplier of requestor doesn't appear on the consolidated materials.
-  * Setup the supplier to have a setup of the material 
+  ## Materials not appearing
+  If the selected supplier is missing from the consolidated materials, verify the supplier's material setup.
+  * Configure the material for the supplier.
   
   ## Failed PO saving
-  The issue comes from the other server due to config **Distributed Transaction** not enabled from the *SERVER* 
-  * Request for the DB Admin to enabled distributed transaction on the specified server
+  This issue occurs when **Distributed Transaction** is disabled on the other server.
+  * Ask the database administrator to enable distributed transactions on the affected server.
 
   ## Missing Item Code or Description
-  Upon saving of PO, if the error is `Missing Item Code or Description` it is due to Missing Item Code setup for the Supplier.
+  If saving the PO returns `Missing Item Code or Description`, the supplier's item code setup is missing.
 
   For Reference
   ![PO_Missing_ItemCode_Setup.png](./assets/PO_Missing_ItemCode_Setup.png)
 
-  Copy the supplier code selected by the user to this script
+  Use the supplier code selected by the user in the following command.
   * `EXEC BILLGRESS_v2.NOAH.NSPFN_PURHSITEMLOOKUP <SYSTEM>, <Suplier Code>`
 
-  In the table `ScopeOfWorklaborCodeMap` the ItemCode exists from the executed SP.
-  * Manually insert the ItemCode inside the table of `ScopeOfWorkLaborCodeMap`.
+  Check `ScopeOfWorklaborCodeMap` for the ItemCode returned by the stored procedure.
+  * Manually insert the ItemCode into `ScopeOfWorkLaborCodeMap`.
   
   ---
 
-  # Debugging ASP runner 
-  * Run the application & open dev tool in the browser and check the logging to know what store procedure is executed.
+  # Debugging ASP runner
+  * Run the application, open the browser's developer tools, and check the logs to identify the stored procedure that ran.
   ---
   # Billgress House Accomplishment
 
   ## PO not appearing in the selection
-    Store Procedure for loading the list of PO. 
+    Stored procedure for loading the list of POs
     BILLGRESS_v2.[HOUACC].[NSP_HouseAccomplishment] @Flag=0;
     
     
-  No contract uploaded. Request a copy of the Contract to verify there's an existing contract.
-  if there's an existing actual contract 
-  * Manually insert the contract details to the table `BILLGRESS_v2.[CNTRCT].[ContractEntryHDR]`.
+  If the contract is missing, request a copy to verify that it exists.
+  If the contract exists, follow the step below.
+  * Manually insert the contract details into `BILLGRESS_v2.[CNTRCT].[ContractEntryHDR]`.
 
   ## Discrepancy in Billing
-  If user has an issue or discrepancy in POC, Amount, Unit 
-  **request the user to delete the billing** just make sure no RFP is created yet.
-  just revert the status of the `HouseAccomplishmentHDR` status to 2 and ask the user to delete it on their end.
+  If the user reports a discrepancy in the POC, amount, or unit,
+  verify that an RFP has yet to be created before asking the user to delete the billing.
+  Set the status in `HouseAccomplishmentHDR` back to 2 so the user can delete the billing.
 
-  # Billgres RFP 
+  # Billgress RFP
 
-  ## No RFPGEN is generated
-  if the RFP report has no generated *RFPGEN* 
-  make sure the **PO** exists and the **Billing No** in this table `[REQPAY].[RequestForPaymentHDR]`.
+  ## RFPGEN is missing
+  If *RFPGEN* is missing from the RFP report,
+  verify that the **PO** and **Billing No** exist in `[REQPAY].[RequestForPaymentHDR]`.
   
-  `[COST_CONSTRUCTION].[CCM].[Contractor_Billing]` if the column **RFPGEN_NO** is null.
+  Check whether **RFPGEN_NO** is null in `[COST_CONSTRUCTION].[CCM].[Contractor_Billing]`.
 
-  run this script. 
+  If it is null, run the following script.
 
     EXEC [CCM].[NSP_Tag_As_RFP_Created]
        @SYSTEM     = '<Noah System>', //NOAH_PAHANKYU02
@@ -133,19 +133,19 @@
        @STATUS     = 'For Approval of RFP',
        @IS_LIVE    = 1
 
-  once run check the `[COST_CONSTRUCTION.[CCM].[Contractor_Billing] WHERE [HSEACM_NO] = <Input transaction no>` check if the column **RFPGEN_NO** has a value
+  After running the script, find the transaction in `[COST_CONSTRUCTION].[CCM].[Contractor_Billing]` by `[HSEACM_NO]` and verify that **RFPGEN_NO** has a value.
 
 ---
 
 # SQL Scripts
-## Manual Migration of PR PO to Billgress
-Some user bypass Billgress to create PR & PO in **NOAH** 
-#### Take note this is not advisable! 
+## Manual migration of PRs and POs to Billgress
+Some users bypass Billgress and create PRs and POs in **NOAH**.
+#### Use Billgress to create PRs and POs whenever possible.
 
-For PR & PO that is already created. **Run this script.**
+Run this script for PRs and POs that already exist.
  * [Manual PO Uploading V2](./sql/Manual_PO_Uploading_V2.sql)
 
- Input all required variables 
+ Set all required variables.
  ```
  DECLARE @CONTRACT_TYPE VARCHAR(80) = ''
  DECLARE @NOAH_SYSTEM VARCHAR(80) = ''
@@ -154,26 +154,26 @@ For PR & PO that is already created. **Run this script.**
  DECLARE @PHASE_CODE VARCHAR(80) = ''
  ```
 
-for Debugging. in the last line `ROLLBACK TRANSACTION` is the default for testing & validation of the data.
+The script ends with `ROLLBACK TRANSACTION` by default so you can test it and validate the data.
 
-## PO & PR Notifaction
-A notication is sent to procurement & approvers
-List of Recipients are found in this table 
+## PR and PO notifications
+The system sends notifications to procurement and approvers.
+Use the following query to find the recipients.
 * `SELECT * FROM [GLOBAL].[AccountsNotified]`
-## PR notification 
-The Script is inside the table `PR.PurchaseRequestHDR` as trigger. Modify the template for updates.This is only for pending PR needed to be approved by the approver.
-Store procedure are found in database `[NOAH DATAWHSE]` Schema `[BG]`
+## PR notification
+The notification script is a trigger on `PR.PurchaseRequestHDR`. Edit the template to update notifications for PRs awaiting approval.
+The stored procedure is in the `[BG]` schema of the `[NOAH DATAWHSE]` database.
 * `NSP_PRReminderPendingForApproval`
 
-## PO Notication 
-Store procedures List at database `[NOAH DATAWHSE]` Schema `[BG]`
+## PO notification
+The following stored procedures are in the `[BG]` schema of the `[NOAH DATAWHSE]` database.
 * `NSP_PONotificationForDelivery` //for sending
-* `NSP_POReminderForDeliveryQty` // List of PO for deliver
-* `NSP_ReminderPRWithNoPO` //Reminder to create PO for PR with no PO
+* `NSP_POReminderForDeliveryQty` // Lists POs due for delivery
+* `NSP_ReminderPRWithNoPO` //Reminds recipients to create POs for PRs without one
 
 
 ## Procurement Dashboard
-List of dependencies `[NOAH DATAWHSE]` Schema `[BG]`
-* `NSP_SynchUnitsWithPRAndPO` 
-* `[NOAH].[NSP_E0101_PO STATUS]` 
+The dashboard depends on the following procedures in the `[NOAH DATAWHSE]` database.
+* `NSP_SynchUnitsWithPRAndPO`
+* `[NOAH].[NSP_E0101_PO STATUS]`
 * `[NOAH].[NSP_E0301_PR_STATUS_Report] `

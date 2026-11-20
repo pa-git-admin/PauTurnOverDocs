@@ -1,24 +1,24 @@
 # Common Issues
 ## Table of Contents
-- [Supplier cant find the tag billing](#supplier-cant-find-the-tag-billing)
-- [Contractor cant save the progress billing](#contractor-cant-save-the-progress-billing)
+- [Supplier can't find the tag billing](#supplier-cant-find-the-tag-billing)
+- [Contractor can't save the progress billing](#contractor-cant-save-the-progress-billing)
 - [Document for review not found](#document-for-review-not-found)
 ---
 
-## Supplier cant find the tag billing
-1. If the Contractor can't find the tag billing from **Billgress HouseAccomplishment**.
-* Request the contractor to Click add new Billing + button.
+## Supplier can't find the tag billing
+If the contractor can't find the tag billing in **Billgress HouseAccomplishment**, follow the step below.
+* Ask the contractor to click the **Add New Billing (+)** button.
 
-## Contractor cant save the progress billing
-If contractor encounter this kind of issue. 
+## Contractor can't save the progress billing
+The contractor may see the following error when saving.
 ![ContractorFailedToSave](./assets/ContractFailedToSave.png)
-* if the user not using Google Chrome. Kindly request them to use Chrome for saving.
+* If the contractor is using another browser, ask them to save the billing in Google Chrome.
 
-## Document for review not found.
-After the contractor uploads the document. PIC checks it but unable to see it.
-Check in this table `SELECT * FROM [COST_CONSTRUCTION].[CCM].[Contractor_Billing] WHERE [PURCHS_NO] LIKE '%1386%'`
+## Document for review not found
+The PIC may be unable to see the document after the contractor uploads it.
+Check the billing record with this query. `SELECT * FROM [COST_CONSTRUCTION].[CCM].[Contractor_Billing] WHERE [PURCHS_NO] LIKE '%1386%'`
 * The Current Mock Status must be _Uploaded for PO_.
-#### Request a copy of the PO DOCUMENT in a pdf format.
-* Go to data dump and upload the PO document
+#### Request a PDF copy of the PO document.
+* Go to the data dump and upload the PO document.
 
-Then check if it will apear at Document For Review Module.
+Then check whether the document appears in the Document for Review module.

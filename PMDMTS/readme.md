@@ -2,54 +2,54 @@
 ---
 ## Table of Contents
 - [Debugging](#debugging)
-  - [Trace issues in outsystem](#Trace-issue-in-outsystem)
+  - [Trace issues in OutSystems](#trace-issues-in-outsystems)
 - [Granting Access](#granting-access)
   - [LDAP](#ldap)
   - [Module Access](#module-access)
 - [Unit Acceptance](#unit-acceptance)
   - [Unit not appearing for unit acceptance](#unit-not-appearing-for-unit-acceptance)
-  - [Unit incomplete checklist](#unit-incomplete-checklist)
+  - [Incomplete unit checklist](#incomplete-unit-checklist)
   - [Update COA date](#update-coa-date)
-  - [Buyer Details is not updated](#buyer-details-is-not-updated)
+  - [Buyer details are out of date](#buyer-details-are-out-of-date)
 - [PMD Accepted Units](#pmd-accepted-units)
   - [For Regular MoveIn](#for-regular-movein)
     - [Unit not appearing for Regular MoveIn](#unit-not-appearing-for-regular-movein)
   - [For Early MoveIn](#for-early-movein)
-    - [User expect the unit is for early MoveIn](#user-expect-the-unit-is-for-early-movein)
+    - [Unit is expected to qualify for Early MoveIn](#unit-is-expected-to-qualify-for-early-movein)
   - [NQ-For Early MoveIn](#nq-for-early-movein)
-    - [Cant process unit back to Qualified for Turnover](#cant-process-unit-back-to-qualified-for-turnover)
+    - [Cannot return the unit to Qualified for Turnover](#cannot-return-the-unit-to-qualified-for-turnover)
 
 ---
 
 # Debugging
-## Trace issues in outsystem
-Useful when new concerns or you are not aware on the conditions of each modules.
-1. Download outsystem in your local.
-2. Install outsystem.
-3. Request a copy on `.OML` file to Sir Emil
+## Trace issues in OutSystems
+Use this procedure to investigate new issues or review a module's conditions.
+1. Download OutSystems to your local machine.
+2. Install OutSystems.
+3. Ask Sir Emil for a copy of the `.OML` file.
 
-### Sample video on how to trace in OutSystem
+### Example of tracing in OutSystems
 ![Outsystem Trace Video](./assets/Trace_Outsystem.mp4)
 
-* Look for the module matching the name you wish to trace in Outsystem. The naming of the Menu Items are same with the filenames. 
+* Find the module you want to trace in OutSystems. The menu item names match the filenames.
 
 
 # Granting access
 
 ## LDAP
 
-Go to the LDAP website and click add new role then search for the name of the user and select the system and role as _User_. Ask for the user to Logout and Login again.
+Go to the LDAP website and click **Add New Role**. Search for the user, select the system, and set the role to _User_. Ask the user to log out and log back in.
 
 ## Module Access
 
-For granting module access to users.
+Follow these steps to grant a user access to a module.
 
-1. Look for the ID of the Employee at this table `[HRISV2].[Employee].[GeneralInfo]`
+1. Find the employee's ID in `[HRISV2].[Employee].[GeneralInfo]`
 
 - `SELECT [ID] FROM [HRISV2].[Employee].[GeneralInfo] where [SURNAME] = 'Dela Cruz'`
 
 2. Copy the ID.
-3. Read this script and run this script
+3. Review and run the following script.
 
 ```
 INSERT INTO [PMDMTS].[Setup_User_Management] ([USER_ID], [MENU_SUB_ITEM_ID], [IS_APPROVER_1], [IS_APPROVER_2], [IS_ACTIVE])
@@ -63,7 +63,7 @@ FROM [PMDMTS].[Setup_User_Management]
 WHERE [USER_ID] = 13951 -- COMMON USER TO COPY MODULE SETUP FOR THE REQUESTOR
 ```
 
-4. Ask for the user to logout and re-login again
+4. Ask the user to log out and log back in.
 
 ---
 
@@ -71,20 +71,20 @@ WHERE [USER_ID] = 13951 -- COMMON USER TO COPY MODULE SETUP FOR THE REQUESTOR
 
 ## Unit not appearing for unit acceptance
 
-#### This Manual trigge. Display a specific unit for unit acceptance. So before running the trigger. kindly check these criterias.
+#### Use this procedure to display a specific unit for acceptance after checking the following criteria.
 
-There are criterias for a unit to be accepted
+Verify that the unit meets the acceptance criteria.
 
-1. Check if the unit is above 95% for it to be accepted for PA/JV
+1. Verify that the unit is above 95% completion for PA/JV acceptance.
 
-- Check at this table `[NOAH DATAWHSE].[NOAH].[E0201_CONSTRUCTION_STATUS_REPORT]`
+- Check the status in `[NOAH DATAWHSE].[NOAH].[E0201_CONSTRUCTION_STATUS_REPORT]`
 
-2. Check if the unit is already accepted.
+2. Check whether the unit has already been accepted.
 
-- Take note if the unit is already accepted once. It can't never be accepted again.
+- A unit can be accepted only once.
 
-Once all criterias are met
-check the Store Procedure `[PMDMTS].[NSP_UNITS_FOR_ACCEPTANCE]` look for the line
+Once the unit meets all the criteria,
+find the following lines in the stored procedure `[PMDMTS].[NSP_UNITS_FOR_ACCEPTANCE]`.
 ![unit-acceptance-script](./assets/unit-acceptance-script.png)
 
 ```
@@ -93,43 +93,43 @@ AND ui.pct >= ''' + @PERCENTAGE + '''
 ' + @QUERY_2 + '
 ```
 
-temporary comment this line then copy the script below and
+Temporarily comment out those lines. Copy the script below and
 
-specified which unit you want to insert.
+specify the units you want to include.
 
 ```
 WHERE csr.[UnitCode] IN (''<Can be multiple units insertion>'')
 ```
 
-Run store procedure `EXEC [PMDMTS].[NSP_UNITS_FOR_ACCEPTANCE]`
+Run the stored procedure with `EXEC [PMDMTS].[NSP_UNITS_FOR_ACCEPTANCE]`
 
-Once run. Check in the PMDMTS Unit Acceptance module
-if the unit is appearing in the list.
+After running the procedure, check the PMDMTS Unit Acceptance module
+to confirm that the unit appears in the list.
 
-#### Revert back to the original script!
+#### Restore the original script
 
-## Unit incomplete checklist
+## Incomplete unit checklist
 
-In the unit for acceptance if the checklist is missing and can't be accepted.
+Follow these steps if an incomplete checklist prevents unit acceptance.
 
-1. Look up for the unit in this table then Copy the ID
+1. Look up the unit and copy its ID.
    `SELECT [ID] FROM [PMDMTS].[Unit_List] WHERE PHASE = '' AND [BLOCK] = '' AND [LOT] = ''`
-2. Query to this table
+2. Query the checklist table.
 
 ```
 SELECT * FROM [PMDMTS].[CheckListForm] WHERE ID = <ID>
 ```
 
-3. If you notice if the number of rows are below 78 it missing.
-4. Delete it `DELETE [PMDMTS].[CheckListForm] WHERE ID = <ID>`
-5. In the PMDMTS Unit Acceptance Module select it again Then wait for it to finish loading.
-6. Ask the user to tick all the checklist and save.
+3. If the query returns fewer than 78 rows, the checklist is incomplete.
+4. Delete the existing checklist with `DELETE [PMDMTS].[CheckListForm] WHERE ID = <ID>`
+5. Select the unit again in the PMDMTS Unit Acceptance module and wait for the checklist to load.
+6. Ask the user to select every checklist item and save.
 
 ## Update COA date
 
-The COA date will be the day when it's accepted. Some user will ask you to update it.
+The COA date is the date the unit was accepted. Users may request a correction.
 
-- Updating the COA is simple. Just query what unit then update the column [ACCEPTED_DATE] to the user requested date
+- Find the unit and set `[ACCEPTED_DATE]` to the date the user requested.
 
 ```
 UPDATE [PMDMTS].[Unit_List]
@@ -138,10 +138,9 @@ UPDATE [PMDMTS].[Unit_List]
 WHERE ID = <ID>
 ```
 
-## Buyer Details is not updated
-if the buyer name is different or showing the previous buyers name. most likely the issue the unit is not yet synched. 
-* You can manually synched it. refer to the [Unit not appearing for unit acceptance](#unit-not-appearing-for-unit-acceptance) procedure.
-* 
+## Buyer details are out of date
+If the buyer's name is incorrect or the previous buyer's name still appears, the unit may need to be synced.
+* To sync the unit manually, follow the [Unit not appearing for unit acceptance](#unit-not-appearing-for-unit-acceptance) procedure.
 
 ---
 
@@ -151,13 +150,12 @@ if the buyer name is different or showing the previous buyers name. most likely 
 
 ### Unit not appearing for Regular MoveIn
 
-User will request units to appear for Regular MoveIn.
+Users may request that units appear for Regular MoveIn.
 
-#### Make sure if the unit is already accepted and not yet occupied.
+#### Verify that the unit has been accepted and is still unoccupied
 
-To make it appear for Regular Move In.
+To check whether the unit qualifies for Regular MoveIn, run the following query.
 
-Run this script
 
 ```
 SELECT      [IS_QUALIFIED], /*value must be 1*/
@@ -168,7 +166,7 @@ FROM       PMDMTS.Unit_List
 WHERE      ID = <ID>
 ```
 
-Once confirm if the value is not yet matches for the criteria for Regular MoveIn
+If the values fail to meet the Regular MoveIn criteria, run the following update.
 
 ```
 UPDATE [PMDMTS].[Unit_List]
@@ -179,16 +177,16 @@ SET
 WHERE ID = <ID>
 ```
 
-Ask the user to Confirm if its now appearing for Regular MoveIn
+Ask the user to confirm that the unit now appears for Regular MoveIn.
 
 ## For Early MoveIn
 
-### User expect the unit is for early MoveIn
+### Unit is expected to qualify for Early MoveIn
 
-#### Take note always ask for the user to ticket his/her request.
+#### Always ask the user to file a ticket
 
-To validate if the unit is already ready for Early MoveIn
-make sure all the status of the colums with `[IS_XXXXXXXXXX]` must be 1
+To verify that the unit is ready for Early MoveIn,
+check that each status column matching `[IS_XXXXXXXXXX]` is set to 1.
 
 ```
 SELECT
@@ -207,7 +205,7 @@ FROM [PMDMTS].[Unit_List]
 where [ID] = <ENTER UNIT ID> AND UNIT_STATUS = 'Approved'
 ```
 
-If all status are 1. The unit is ready for Early MoveIn
+If all status values are 1, the unit is ready for Early MoveIn.
 
 ##### Run this script manually to update the status of the unit for Early MoveIn
 ```
@@ -278,11 +276,11 @@ print 'attempting to insert movein'
 END
 ROLLBACK TRANSACTION
 ```
-if confident commit the transaction.
+Commit the transaction once you have verified the result.
 
 ## NQ-For Early MoveIn
-### Cant process unit back to Qualified for Turnover
-Existing issue when using PMDMTS users can't requalified unit for Early MoveIn/Regular MoveIn
+### Cannot return the unit to Qualified for Turnover
+Users may be unable to requalify a unit for Early MoveIn or Regular MoveIn in PMDMTS.
 #### Request the user to file a ticket for this kind of request.
 
-Modify the status of column of the affected unit. implement [User expect the unit is for early MoveIn](#user-expect-the-unit-is-for-early-movein) procedure to requalify the unit.
+Update the status of the affected unit. Follow the [Unit is expected to qualify for Early MoveIn](#unit-is-expected-to-qualify-for-early-movein) procedure to requalify the unit.

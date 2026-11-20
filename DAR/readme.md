@@ -2,37 +2,37 @@
 ---
 ## Table of Contents
 - [Granting access](#granting-access)
-  - [Create Encoder Account](#create-encoder-account)
+  - [Create an encoder account](#create-an-encoder-account)
   - [Access to modules](#access-to-modules)
   - [Access to projects](#access-to-projects)
 - [Admin Management](#admin-management)
-  - [Resynch admins](#resynch-admins) 
-  - [Admin can not be found](#admin-can-not-be-found)
+  - [Resync admins](#resync-admins)
+  - [Admin is missing](#admin-is-missing)
   - [Unable to assign projects](#unable-to-assign-projects)
   - [Adding new Pasa Payroll admins](#adding-new-pasa-payroll-admins)
 - [Setup Activities](#setup-activities)
   - [Duplicate BOM mapping Entry](#duplicate-bom-mapping-entry)
   - [Newly added Activity not appearing](#newly-added-activity-not-appearing)
 - [Project Activities Monitoring](#project-activities-monitoring)
-  - [User cant select the activity from task entry](#user-cant-select-activity-from-task-entry)
-  - [Activity is already completed but in the project activity monitoring not yet](#activity-is-already-completed-but-in-the-project-activity-not-yet)
+  - [User can't select the activity in Task Entry](#user-cant-select-the-activity-in-task-entry)
+  - [Completed activity appears incomplete in Project Activities Monitoring](#completed-activity-appears-incomplete-in-project-activities-monitoring)
 - [Task Entries](#task-entries)
-  - [User cant find the activity](#user-cant-find-the-activity)
+  - [User can't find the activity](#user-cant-find-the-activity)
   - [Duplicate entries](#duplicate-entries)
-  - [Batch Assigning activity not appearing](#batch-assigning-acitivty-not-appearing)
-  - [Overtime until early morning](#overtime-until-early-morning)
+  - [Activity is missing from Batch Assignment](#activity-is-missing-from-batch-assignment)
+
 - [Manpower Reporting](#manpower-reporting)
   - [Duplicate rows](#duplicate-rows)
 - [Scripts](#scripts)
   - [Migration from LIVE to UAT](#migration-from-live-to-uat)
-- [System Crash]
+- [System Crash](#system-crash)
 
 # Granting Access
-## Create Encoder DAR V2
-For encoder & Consultants that doesn't exists in the PA Employee Directory. Granting access to them.
-You can check if the encoder already exists to this table `[AWTM].[Setup_White_List_User]`.
+## Create an encoder account
+Use this procedure to grant access to encoders and consultants who are missing from the PA Employee Directory.
+Check whether the encoder already exists in `[AWTM].[Setup_White_List_User]`.
 
-IF NOT! run this script and filled out the details 
+If the encoder is missing, fill in the details and run the following script.
 
     EXEC [AWTM].[NSP_Create_Setup_White_List_User]
      @GENERAL_INFO_ID	= <input an unique value> //get the employee number of the encoder to HR
@@ -44,48 +44,48 @@ IF NOT! run this script and filled out the details
     ,@PASSWORD			  = <generate a random password>
     ,@DEPARTMENT			= <input value here>
 
-once run, request the personal email of the encoder's and send it to them via email. 
+After running the script, ask for the encoder's personal email address and email them their account details.
 
 ## Access to modules
-  #### For Encoder accounts & consultants-Implement this step [Create Encoder Account](#create-encoder-account).
-  #### For PA/JV - make sure the employee already exists in the HRIS
-  * Request to have them encoded to the HRIS and wait for it be synced
+  #### For encoders and consultants, follow [Create an encoder account](#create-an-encoder-account).
+  #### For PA/JV, verify that the employee exists in HRIS
+  * If the employee is missing, ask for their record to be added to HRIS and wait for it to sync.
 
-  for granting access to any modules.
-  1. Open the link old version of the DAR [AdminWorkerTaskMonitoring](https://prod.paproperties.com.ph/AdminWorkerTaskMonitoring/Login)
-  2. Go to the Settings>User Access
+  Follow these steps to grant module access.
+  1. Open the old version of DAR in [AdminWorkerTaskMonitoring](https://prod.paproperties.com.ph/AdminWorkerTaskMonitoring/Login)
+  2. Go to **Settings > User Access**.
   ![step-1](./assets/step-1.png)
-  3. Click the button **Add User Access**
+  3. Click **Add User Access**.
   ![step-2](./assets/step-2.png)
-  4. Search for the account & tick any modules he/she needs then Click **Save**
+  4. Find the account, select the modules the user needs, and click **Save**.
   ![step-3](./assets/step-3.png)
-  5. Once granted request the user to logout and relogin his/her account.
+  5. After granting access, ask the user to log out and log back in.
 
 
   ## Access to Projects
-  Make sure they have an existing module access to any. 
-  1. From the Settings\User Access. Search the name of the user and click the red highlighted text
+  Verify that the user already has access to at least one module.
+  1. In **Settings > User Access**, find the user and click the text highlighted in red.
   ![access-projects](./assets/access-projects.png)
-  2. You will see a Pop-up dialog. Tick the projects they want access
+  2. In the dialog, select the projects the user needs to access.
   ![access-projects-2](./assets/access-projects-2.png)
   3. Click **Save**
-  4. Once saved request the user to logout and relogin his/her account.
+  4. After saving, ask the user to log out and log back in.
 
   ---
   # Admin Management
-  ## Resynch admins
-  Most cases if they don't see the admin. You can run the synching manually
-  * Sync admins from HRIS to DAR by simply running this Store procedure `EXEC [PA_AWTM].[GL].[SYNC_AdminWorker]`
+  ## Resync admins
+  If the admin is missing, you can run the sync manually.
+  * Sync administrators from HRIS to DAR by running `EXEC [PA_AWTM].[GL].[SYNC_AdminWorker]`
 
-  ## Admin can not be found
-  Most cases if the admin can not be found. The admin is not yet encoded from `[BINITS007\BINITS007SQL].[PAABI_HRIS_Workers].[dbo].[emplinfo]`. To verify query the name and check if it's exists
-  * if not request to the site hr to have them recorded in the Admin HRIS systems
+  ## Admin is missing
+  If the admin is missing, check for their record in `[BINITS007\BINITS007SQL].[PAABI_HRIS_Workers].[dbo].[emplinfo]` by querying their name.
+  * If the record is missing, ask site HR to add it to Admin HRIS.
 
-  once done implement [Resynch admins](#resynch-admins)
+  Once HR adds the record, follow the [Resync admins](#resync-admins) procedure.
 
   ## Unable to assign projects
-  if the user can't be assign new projects. 
-  * `SELECT * FROM [AWTM].[dbo].[AdminWorkerPhase]` Check in this table if it has already existing setup. if yes run this script and update the `[IS_ACTIVE]` column to 1
+  If you can't assign new projects to the user, check for an existing assignment.
+  * `SELECT * FROM [AWTM].[dbo].[AdminWorkerPhase]` Use this query to find the existing assignment. If it exists, run the following script to set `[IS_ACTIVE]` to 1.
 
   ```
   DECLARE @EMPSERIESID VARCHAR(80) = '4119' //sample
@@ -107,19 +107,21 @@ once run, request the personal email of the encoder's and send it to them via em
   ```
 
   ## Adding new Pasa Payroll admins
-  for assigning non PA admins pasa payroll.
-  1. Login to the new version of [DAR](https://prod.paproperties.com.ph/DAR/login)
+  Follow these steps to add non-PA admins to Pasa Payroll.
+  1. Log in to the new version of [DAR](https://prod.paproperties.com.ph/DAR/login)
   2. Go to the Pasa Payroll module
-  3. Input the details of the admin 
+  3. Enter the admin's details.
   ![pasapayroll-setup](./assets/Pasapayroll-setup.png)
-  4. Click Save
-  5. It will appear in the list the new added admin
+  4. Click **Save**.
+  5. Verify that the new admin appears in the list.
 
-  #### Take note if the name of the admin already exists in the list. refrain from adding it to the record. To avoid duplicate admin records to the report.
+  #### Check the list before adding an admin to prevent duplicate records in the report.
 
-  ## Duplicate BOM mapping Entry
-  some cases when they try to load e.g `Windfield 4 or Windfield 5` when loading or updating a new Budget Manhours to an activity. it will failed updating the old from the table `ActivityScopeOfWorkLIN` column `[IS_ACTIVE]`  to *false*. You will see double records. 
-  I 've created a clean up script for duplicate BOM Mapping Entry
+  # Setup Activities
+
+  ## Duplicate BOM mapping entry
+  When users load or update budgeted man-hours for an activity in Windfield 4 or Windfield 5, the system may fail to set `[IS_ACTIVE]` to *false* for the old record in `ActivityScopeOfWorkLIN`. This can leave duplicate records.
+  Use the following script to find and clean up duplicate BOM mapping entries.
   ```
   ;WITH DUPLICATE_BOM AS (
 	SELECT 
@@ -164,29 +166,29 @@ once run, request the personal email of the encoder's and send it to them via em
   ```
 
 ## Newly added Activity not appearing
-Some cases the user is not aware why the newly added activity is not showing in the **BOM Mapping Entry** module.
-* The activty is for other tasks/land dev/post task.
-* The activity is not yet tag to a model unit.
+A newly added activity may be missing from **BOM Mapping Entry** for either of the following reasons.
+* The activity is for other tasks, land development, or post tasks.
+* The activity has yet to be tagged to a model unit.
 
 ---
 # Project Activities Monitoring
-## User cant select the activity from task entry
-User is not aware that they need to tag the activity as imcomplete for it to be selected again from the **Task Entry**
-1. Go to old version of DAR [AdminWorkerTaskMonitoring](https://prod.paproperties.com.ph/AdminWorkerTaskMonitoring/Login)
-2. Filter the Phase and Date then click *Project Activities Monitoring*
+## User can't select the activity in Task Entry
+Tag the activity as incomplete before selecting it again in **Task Entry**.
+1. Open the old version of DAR in [AdminWorkerTaskMonitoring](https://prod.paproperties.com.ph/AdminWorkerTaskMonitoring/Login)
+2. Filter by phase and date, then click *Project Activities Monitoring*.
 ![project-activity-step-1](./assets/project-activity-step-1.png)
-3. Always filter the date ahead.
-4. From Project Activities Monitoring filter the *Construction Index* & *Blk*
-5. Search which blk & lot the user wants to tag as incomplete.
-6. Click Tag as incomplete
+3. Always select a later date in the filter.
+4. In Project Activities Monitoring, filter by *Construction Index* and *Blk*.
+5. Find the block and lot that the user wants to tag as incomplete.
+6. Click **Tag as incomplete**.
 7. Try re-encoding the activity.
 
-## Activity is already completed but in the project activity monitoring not yet
-User can't select a certain activity due to it is already exceed on the Accumulated Manhours however upon checking in the Project Activities Monitoring not yet.
-* Ask the user to go back from the initial page and filter the date ahead.
-* Ask the user to close the broswer and open it via incognito.
+## Completed activity appears incomplete in Project Activities Monitoring
+The user may be unable to select an activity because its accumulated man-hours exceed the budget, even if the activity still appears incomplete in Project Activities Monitoring.
+* Ask the user to return to the initial page and select a later date in the filter.
+* Ask the user to close the browser and reopen the page in an incognito window.
 
-#### For Tracing you can run this script and validate if it's already exceed from it's budget manhours
+#### Run the following script to check whether the activity has exceeded its budgeted man-hours
 
 ```
 DECLARE @TaskCode VARCHAR(20) = ''
@@ -217,35 +219,37 @@ WHERE lin.[TaskCode] = @TaskCode  AND lin.[Blk] = @Blk AND lin.[Lot] = @Lot
 
 ---
 
-## User cant find the activity
-Encododer isn't aware that the current activity he/she want to encode don't have budget manhours allocated.
-* Kindly ask the cost department to setup the activity to input the allocated budget manhours
+# Task Entries
+
+## User can't find the activity
+The activity the encoder wants to enter has no allocated man-hours.
+* Ask the Cost Department to set up the activity and enter the budgeted man-hours.
 
 ## Duplicate entries
-Encoder will report that they will experience duplication of entries. 
-* Query the duplicate entry in this table `[PA_AWTM].[dbo].[TaskAssignmentSummaryLIN]` that they reported and look for the column `RN` is the value is different. **IT IS NOT DUPLICATE ENTRIES** it's an error on their part. Kindly ask them to delete it on their end.
+Encoders may report duplicate entries.
+* Find the reported entries in `[PA_AWTM].[dbo].[TaskAssignmentSummaryLIN]` and compare their `RN` values. Different values indicate separate entries. Ask the encoder to delete the entry they added by mistake.
 
-## Batch Assigning activity not appearing
-When batch assigning some instances it will failed from loading when filtering different Construction Index. if that's happens
-* Ask the user the close the Batch Assignment Pop up and click it again. Filter the details and wait for the activity to load.
+## Activity is missing from Batch Assignment
+Activities may fail to load when the user changes the Construction Index filter in Batch Assignment.
+* Ask the user to close and reopen the Batch Assignment dialog, reapply the filters, and wait for the activity to load.
 
 ---
 
 # Manpower Reporting
 Check the manpower report at [Manpower Reporting MonitoringV2](http://secure.pagroup.com.ph/Reports_PAGROUPSQL/Pages/Report.aspx?ItemPath=%2fDAR%2fManpower+MonitoringV2)
 ## Duplicate rows
-This only affect with projeect that has PasaPayroll. Most cases this occurs due to the PIC/Encoder is not aware. The admin is already encoded in the HRIS insist that they are for PasaPayroll.
-* Solution is to verify if the HRIS record is still active `[BINITS007\BINITS007SQL].[PAABI_HRIS_Workers].[dbo].[emplinfo]` query the admin and check if the column `[EMPLOYEESTATUS]` if `S` meaning resign. use the PasaPayroll Empseriesid. Go to the Project Assignment and look for the old Admin Name and unassign the admin to the project & assign the pasapayroll equivalent to the project. *Vice Versa*
+This issue affects projects that use Pasa Payroll. It can occur when the PIC or encoder uses a Pasa Payroll record for an admin who already has an HRIS record.
+* Find the admin in `[BINITS007\BINITS007SQL].[PAABI_HRIS_Workers].[dbo].[emplinfo]` and check `[EMPLOYEESTATUS]`. A value of `S` indicates that the admin has resigned from the role recorded in HRIS. In Project Assignment, remove the old assignment and assign the equivalent Pasa Payroll record using its Empseriesid. Reverse the process if the HRIS record is the one that should be assigned.
 
 ---
 
 # Scripts
 ## Migration from LIVE to UAT
-For recreating issues. Recommended is that you copy the data from live (SPDITS016) to Dev(SPDITS005-B)
+To reproduce an issue, copy the data from LIVE (SPDITS016) to DEV (SPDITS005-B).
 
-#### Make sure you ore cunrrently at SPDITS005-B server to run this scripts
+#### Verify that you are connected to SPDITS005-B before running these scripts
 
-For copying the Header `[TasksHDR_prod_to_dev.sql]`
+To copy the task header records, use `[TasksHDR_prod_to_dev.sql]`
 ```
 BEGIN TRANSACTION
 
@@ -287,7 +291,7 @@ Select * from [dbo].[TaskAssignmentSummaryHDR]
 ROLLBACK TRANSACTION
 ```
 
-For copying the Task Lin LIVE to DEV
+Use the following script to copy task line records from LIVE to DEV.
 ```
 
 BEGIN TRANSACTION
@@ -347,11 +351,11 @@ select * from [dbo].[TaskAssignmentSummaryLIN]
 rollback TRANSACTION
 ```
 
-just change to line `ROLLBACK TRANSACTION` into `COMMIT TRANSACTION` if **CONFIDENT** and sure that you are currently at SPDITS005-B
+After verifying the results and confirming that you are connected to SPDITS005-B, change `ROLLBACK TRANSACTION` to `COMMIT TRANSACTION`.
 
 ---
 
 # System Crash
-If user encounter system crash. like this.
+The user may see the following error when the system crashes.
 ![dar_crash.png](./assets/dar_crash.png)
-* Request the user to use incognito. This resolves the issue.
+* Ask the user to open DAR in an incognito window.
