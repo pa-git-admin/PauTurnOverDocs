@@ -1,0 +1,181 @@
+TRUNCATE TABLE  [ECast].[Account_Stage_Status]
+
+-- =========================================================
+-- ECAST BUYERS
+-- =========================================================
+IF OBJECT_ID('tempdb..#TMP_ACCOUNTS') IS NOT NULL
+DROP TABLE #TMP_ACCOUNTS
+
+CREATE TABLE #TMP_ACCOUNTS (
+	[ID]				BIGINT IDENTITY(1,1) PRIMARY KEY([ID])
+,	[SYSTEM]			VARCHAR(80)
+,	[CUSTOMER_CODE]		VARCHAR(80)
+,	[ACCOUNT_NO]		VARCHAR(80)
+,	[CIN]				VARCHAR(80)
+,	[RESERVENO]			VARCHAR(155) NULL
+,	[BUYERS_NAME]		VARCHAR(120) NULL
+,	[UNIT_CODE]			VARCHAR(80) NULL
+,	[PHASE]				VARCHAR(80) NULL
+,	[Blk]				VARCHAR(80) NULL
+,	[Lot]				VARCHAR(80) NULL
+,	[PaymentSource]		VARCHAR(80) NULL
+,	[MOBILE_NO]			VARCHAR(MAX) NULL
+,	[EMAIL_ADDRESS]		VARCHAR(MAX)
+,	[CREATED_DATE]		DATETIME DEFAULT(GETDATE())
+)
+CREATE NONCLUSTERED INDEX IX_TMP_ACCOUNTS_SYSTEM_ACCOUNT
+ON #TMP_ACCOUNTS ([SYSTEM], [RESERVENO], [ACCOUNT_NO], [BUYERS_NAME]);
+
+INSERT INTO #TMP_ACCOUNTS (
+		[SYSTEM]
+	,	[CUSTOMER_CODE]
+	,	[ACCOUNT_NO]
+	,	[CIN]
+	,	[RESERVENO]
+	,	[BUYERS_NAME]
+	,	[UNIT_CODE]
+	,	[PHASE]
+	,	[Blk]
+	,	[Lot]
+	,	[PaymentSource]
+	,	[MOBILE_NO]
+	,	[EMAIL_ADDRESS]
+)
+SELECT
+	[SYSTEM]
+,	[CUSTOMER_CODE]
+,	[ACCOUNT_NO]
+,	[CIN]
+,	[HLDRES_NO]
+,	[BUYERS_NAME]
+,	[UNIT_CODE]
+,	[PHASE]
+,	[Block]
+,	[Lot]
+,	[PAYMENT_SOURCE]
+,	[MOBILE_NO]
+,	[EMAIL_ADDRESS]
+FROM [DataSource].[Buyers_Information]
+WHERE [BUYERS_STATUS] <> 'Cancelled'
+
+
+-- ===================================================
+-- PARAMETERS
+--	CCDC - SEASONED - FOR COMPLETION OF DOCUMENTS
+--	Turned Over to LPD-HDMF
+--	Turned Over to LD-Bank
+-- ===================================================
+
+;WITH Accounts as (
+	SELECT
+			ac.*
+		,	ach.[ACCOUNT_STAGE_STATUS]
+		,	ach.[ACCOUNT_STAGE]
+		,	ach.[DATE_UPDATED]
+		FROM #TMP_ACCOUNTS ac
+		OUTER APPLY (
+			SELECT TOP 1
+				[ACCOUNT_STAGE_STATUS]
+			,	[ACCOUNT_STAGE]
+			,	[TRANSACTION_DATE] as [DATE_UPDATED]
+			FROM [NOAH DATAWHSE].[NOAH].[E0102_Account_Stages_History]
+			WHERE [UNIT_CODE] = ac.[UNIT_CODE]
+			AND [ACCOUNTNO] = ac.[ACCOUNT_NO]
+			AND [HOLDNO] = ac.[RESERVENO]
+			ORDER BY [TRANSACTION_DATE] DESC
+		) ach
+		WHERE (ach.[ACCOUNT_STAGE] = 'CCDC - SEASONED - FOR COMPLETION OF DOCUMENTS')
+		OR (ach.[ACCOUNT_STAGE] = 'TURNED OVER TO LD - BANK')
+		OR (ach.[ACCOUNT_STAGE] = 'TURNED OVER TO LPD - HDMF')
+		OR (ach.[ACCOUNT_STAGE] = 'Turned over to LPD from CCDC')
+)
+
+INSERT INTO [ECast].[Account_Stage_Status] (
+	[SYSTEM]
+,	[CUSTOMER_CODE]
+,	[ACCOUNT_NO]
+,	[CIN]
+,	[RESERVENO]
+,	[BUYERS_NAME]
+,	[UNIT_CODE]
+,	[PHASE]
+,	[MOBILE_NO]
+,	[EMAIL_ADDRESS]
+,	[ACCOUNT_STAGE]
+,	[ACCOUNT_STAGE_STATUS]
+,	[DATE_UPDATED]
+,	[Blk]
+,	[Lot]
+,	[PaymentSource]
+,	[CREATED_DATE]
+)
+SELECT
+	a.[SYSTEM]
+,	a.[CUSTOMER_CODE]
+,	a.[ACCOUNT_NO]
+,	a.[CIN]
+,	a.[RESERVENO]
+,	a.[BUYERS_NAME]
+,	a.[UNIT_CODE]
+,	a.[PHASE]
+,	a.[MOBILE_NO]
+,	a.[EMAIL_ADDRESS]
+,	a.[ACCOUNT_STAGE]
+,	a.[ACCOUNT_STAGE_STATUS]
+,	a.[DATE_UPDATED]
+,	a.[Blk]
+,	a.[Lot]
+,	a.[PaymentSource]
+,	GETDATE()
+FROM Accounts a
+WHERE NOT EXISTS (
+					SELECT		1
+					FROM		[ECast].[Account_Stage_Status_History]
+					WHERE		[SYSTEM]		= a.[SYSTEM]
+					AND			[CUSTOMER_CODE]	= a.[CUSTOMER_CODE]
+					AND			[ACCOUNT_NO]	= a.[ACCOUNT_NO]
+					AND			[CIN]			= a.[CIN]
+					AND			[RESERVENO]		= a.[RESERVENO]
+					AND			[UNIT_CODE]		= a.[UNIT_CODE]
+					AND			[ACCOUNT_STAGE]	= a.[ACCOUNT_STAGE]
+				 )
+
+
+INSERT INTO [ECast].[Account_Stage_Status_History] (
+	[SYSTEM]
+,	[CUSTOMER_CODE]
+,	[ACCOUNT_NO]
+,	[CIN]
+,	[RESERVENO]
+,	[BUYERS_NAME]
+,	[UNIT_CODE]
+,	[PHASE]
+,	[MOBILE_NO]
+,	[EMAIL_ADDRESS]
+,	[ACCOUNT_STAGE]
+,	[ACCOUNT_STAGE_STATUS]
+,	[DATE_UPDATED]
+,	[Blk]
+,	[Lot]
+,	[PaymentSource]
+,	[CREATED_DATE]
+)
+SELECT
+	[SYSTEM]
+,	[CUSTOMER_CODE]
+,	[ACCOUNT_NO]
+,	[CIN]
+,	[RESERVENO]
+,	[BUYERS_NAME]
+,	[UNIT_CODE]
+,	[PHASE]
+,	[MOBILE_NO]
+,	[EMAIL_ADDRESS]
+,	[ACCOUNT_STAGE]
+,	[ACCOUNT_STAGE_STATUS]
+,	[DATE_UPDATED]
+,	[Blk]
+,	[Lot]
+,	[PaymentSource]
+,	GETDATE()
+FROM [ECast].[Account_Stage_Status]
